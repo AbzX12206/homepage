@@ -79,7 +79,7 @@ const WMO_ICONS = {
   96:['fa-bolt','Thunderstorm'],
   99:['fa-bolt','Thunderstorm']
 };
-const DEFAULT_COORDS = {lat:51.5074, lon:-0.1278, name:'London'}; // fallback if geolocation is unavailable
+const DEFAULT_COORDS = {lat:43.65, lon:51.1667, name:'Aqtau'}; // fallback if geolocation is unavailable
 
 async function renderWeather(lat, lon, placeName){
   const el = document.getElementById('weather');

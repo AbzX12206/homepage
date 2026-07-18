@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>New Tab</title>
@@ -18,34 +18,32 @@
     background-image: url('wall1.jpg');
   }
   .wrap{
+    position:relative;
     height:100%;
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 80px;
   }
 
-  /* ---------- left: link list ---------- */
+  /* ---------- left: quick links (vertical) ---------- */
   .links{
-    display:flex;
-    flex-direction:row;
-    gap:56px;
-    transition:opacity .4s ease;
-  }
-  .link-col{
+    position:absolute;
+    left:80px;
+    top:50%;
+    transform:translateY(-50%);
     display:flex;
     flex-direction:column;
     gap:14px;
+    transition:opacity .4s ease;
   }
-  .col-title{
+  .group-title{
     color:var(--sub);
     font-size:11px;
     font-weight:700;
     letter-spacing:1.5px;
     text-transform:uppercase;
-    margin-bottom:2px;
+    margin:10px 0 -2px;
     text-shadow:0 2px 8px rgba(0,0,0,.6);
+  }
+  .group-title:first-child{
+    margin-top:0;
   }
   .link-item{
     display:flex;
@@ -83,27 +81,30 @@
     white-space:nowrap;
   }
 
-  /* ---------- right: clock + calendar ---------- */
-  .side{
+  /* ---------- center: clock + search ---------- */
+  .center{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
     display:flex;
     flex-direction:column;
-    align-items:flex-end;
-    gap:36px;
+    align-items:center;
+    gap:22px;
   }
   .clock{
     color:var(--text);
-    text-align:right;
+    text-align:center;
     user-select:none;
     text-shadow:0 2px 10px rgba(0,0,0,.6);
   }
-  .clock #time{font-size:52px;font-weight:700;letter-spacing:1px;}
+  .clock #time{font-size:64px;font-weight:700;letter-spacing:1px;}
 
-  /* ---------- search ---------- */
   .search{
     display:flex;
     align-items:center;
     gap:10px;
-    width:260px;
+    width:320px;
   }
   .search i{
     color:var(--sub);
@@ -116,24 +117,40 @@
     border-bottom:1px solid rgba(255,255,255,0.25);
     color:var(--text);
     font-family:inherit;
-    font-size:14px;
+    font-size:15px;
     padding:6px 2px;
     outline:none;
+    text-align:center;
     text-shadow:0 2px 8px rgba(0,0,0,.6);
   }
   .search input::placeholder{
     color:var(--sub);
   }
 
-  .calendar{
+  /* ---------- right: calendar + weather ---------- */
+  .side{
+    position:absolute;
+    right:80px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    gap:16px;
     transition:opacity .4s ease;
+  }
+
+  .card{
     background:rgba(28,28,30,0.55);
     backdrop-filter:blur(6px);
     border:1px solid rgba(255,255,255,0.08);
     border-radius:14px;
     padding:16px 18px;
-    width:260px;
     user-select:none;
+  }
+
+  .calendar{
+    width:220px;
   }
   .calendar-header{
     display:flex;
@@ -174,9 +191,43 @@
     opacity:1;
   }
 
-  /* ---------- idle: скрываем ссылки и календарь, часы и поиск остаются ---------- */
+  /* ---------- weather ---------- */
+  .weather{
+    width:130px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color:var(--text);
+    text-align:center;
+  }
+  .weather i{
+    font-size:26px;
+    color:var(--text);
+    text-shadow:0 2px 8px rgba(0,0,0,.6);
+  }
+  .weather .temp{
+    font-size:24px;
+    font-weight:700;
+  }
+  .weather .desc{
+    font-size:11px;
+    color:var(--sub);
+    text-transform:capitalize;
+  }
+  .weather .place{
+    font-size:10px;
+    color:var(--sub);
+    white-space:nowrap;
+    max-width:120px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* ---------- idle: hide links + calendar/weather, keep clock and search ---------- */
   body.idle .links,
-  body.idle .calendar{
+  body.idle .side{
     opacity:0;
     pointer-events:none;
   }
@@ -187,17 +238,24 @@
 <div class="wrap">
   <div class="links" id="links"></div>
 
-  <div class="side">
+  <div class="center">
     <div class="clock">
       <div id="time"></div>
     </div>
     <div class="search">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" id="search-input" placeholder="искать в DuckDuckGo…" autocomplete="off" spellcheck="false">
+      <input type="text" id="search-input" placeholder="Search DuckDuckGo…" autocomplete="off" spellcheck="false">
     </div>
-    <div class="calendar">
+  </div>
+
+  <div class="side">
+    <div class="card calendar">
       <div class="calendar-header" id="cal-header"></div>
       <div class="calendar-grid" id="cal-grid"></div>
+    </div>
+    <div class="card weather" id="weather">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <div class="desc">Loading…</div>
     </div>
   </div>
 </div>

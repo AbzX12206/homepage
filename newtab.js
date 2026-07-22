@@ -1,8 +1,16 @@
-/* ---------- clock ---------- */
+/* ---------- clock + greeting ---------- */
+function greetingFor(hour){
+  if (hour < 5)  return 'Good night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  if (hour < 22) return 'Good evening';
+  return 'Good night';
+}
 function updateClock(){
   const now = new Date();
   let h = now.getHours(), m = now.getMinutes();
   const ampm = h >= 12 ? 'PM' : 'AM';
+  document.getElementById('greeting').textContent = greetingFor(h);
   h = h % 12; if(h === 0) h = 12;
   document.getElementById('time').textContent =
     `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
@@ -55,6 +63,25 @@ function renderCalendar(){
 renderCalendar();
 setInterval(renderCalendar, 1000*60*60);
 
+/* ---------- week progress indicator (Mon-Sun) ---------- */
+function renderWeekProgress(){
+  const el = document.getElementById('week-progress');
+  el.innerHTML = '';
+  const now = new Date();
+  let todayIdx = now.getDay() - 1; // Monday-first: 0..6
+  if (todayIdx < 0) todayIdx = 6;
+
+  for (let i = 0; i < 7; i++){
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    if (i < todayIdx) seg.classList.add('past');
+    if (i === todayIdx) seg.classList.add('today');
+    el.appendChild(seg);
+  }
+}
+renderWeekProgress();
+setInterval(renderWeekProgress, 1000*60*60);
+
 /* ---------- weather (Open-Meteo, no API key needed) ---------- */
 const WMO_ICONS = {
   0:['fa-sun','Clear sky'],
@@ -101,12 +128,14 @@ async function renderWeather(lat, lon, placeName){
 
     el.innerHTML = `
       <i class="fa-solid ${icon}"></i>
-      <div class="temp">${temp}°C</div>
-      <div class="desc">${desc}</div>
-      ${place ? `<div class="place">${place}</div>` : ''}
+      <div class="info">
+        <div class="temp">${temp}°C</div>
+        <div class="desc">${desc}</div>
+        ${place ? `<div class="place">${place}</div>` : ''}
+      </div>
     `;
   }catch(e){
-    el.innerHTML = `<i class="fa-solid fa-cloud-question"></i><div class="desc">Unavailable</div>`;
+    el.innerHTML = `<i class="fa-solid fa-cloud-question"></i><div class="info"><div class="desc">Unavailable</div></div>`;
   }
 }
 
@@ -122,54 +151,48 @@ if (navigator.geolocation){
 
 /* ---------- quick links ----------
    icon: any Font Awesome class (fa-brands / fa-solid)
-   group: section title the link is listed under (order = first appearance)
-   add/remove/edit links here
+   order below = display order, top to bottom
 */
 const LINKS = [
-  {group:'Work',  name:'gmail',       url:'https://mail.google.com',      icon:'fa-solid fa-envelope',        color:'#ea4335'},
-  {group:'Work',  name:'whatsapp',    url:'https://web.whatsapp.com',     icon:'fa-brands fa-whatsapp',       color:'#25d366'},
-  {group:'Work',  name:'translate',   url:'https://translate.google.com', icon:'fa-solid fa-language',        color:'#4285f4'},
-
-  {group:'AI',    name:'chatgpt',     url:'https://chat.openai.com',      icon:'fa-solid fa-robot',           color:'#10a37f'},
-  {group:'AI',    name:'claude',      url:'https://claude.ai',            icon:'fa-solid fa-asterisk',        color:'#d97757'},
-  {group:'AI',    name:'gemini',      url:'https://gemini.google.com',    icon:'fa-solid fa-star',            color:'#3b5fe0'},
-  {group:'AI',    name:'perplexity',  url:'https://perplexity.ai',        icon:'fa-solid fa-magnifying-glass',color:'#22b8cf'},
-
-  {group:'Media', name:'youtube',     url:'https://youtube.com',          icon:'fa-brands fa-youtube',        color:'#e0245e'},
-  {group:'Media', name:'reddit',      url:'https://reddit.com',           icon:'fa-brands fa-reddit',         color:'#f5821f'},
-  {group:'Media', name:'x',           url:'https://x.com',                icon:'fa-brands fa-x-twitter',      color:'#ccc'},
-  {group:'Media', name:'lichess',     url:'https://lichess.org',          icon:'fa-solid fa-chess-knight',    color:'#999'},
-  {group:'Media', name:'anilib',      url:'https://animelib.org',         icon:'fa-solid fa-tv',              color:'#9b59ff'},
-  {group:'Media', name:'rutracker',   url:'https://rutracker.org',        icon:'fa-solid fa-magnet',          color:'#e8a33d'},
-
-  {group:'Info',  name:'github',      url:'https://github.com',           icon:'fa-brands fa-github',         color:'#6e5494'},
-  {group:'Info',  name:'yahoo finance', url:'https://finance.yahoo.com',  icon:'fa-brands fa-yahoo',          color:'#6001d2'}
+  {name:'youtube',    url:'https://youtube.com',          icon:'fa-brands fa-youtube',  color:'#e0245e'},
+  {name:'reddit',     url:'https://reddit.com',           icon:'fa-brands fa-reddit',   color:'#f5821f'},
+  {name:'x',          url:'https://x.com',                icon:'fa-brands fa-x-twitter',color:'#ccc'},
+  {name:'anilib',     url:'https://animelib.org',         icon:'fa-solid fa-tv',        color:'#9b59ff'},
+  {name:'whatsapp',   url:'https://web.whatsapp.com',     icon:'fa-brands fa-whatsapp', color:'#25d366'},
+  {name:'gmail',      url:'https://mail.google.com',      icon:'fa-solid fa-envelope',  color:'#ea4335'},
+  {name:'claude',     url:'https://claude.ai',            icon:'fa-solid fa-asterisk',  color:'#d97757'},
+  {name:'gemini',     url:'https://gemini.google.com',    icon:'fa-solid fa-star',      color:'#3b5fe0'},
+  {name:'chatgpt',    url:'https://chat.openai.com',      icon:'fa-solid fa-robot',     color:'#10a37f'},
+  {name:'github',     url:'https://github.com',           icon:'fa-brands fa-github',   color:'#6e5494'},
+  {name:'rutracker',  url:'https://rutracker.org',        icon:'fa-solid fa-magnet',    color:'#e8a33d'},
+  {name:'translate',  url:'https://translate.google.com', icon:'fa-solid fa-language',  color:'#4285f4'}
 ];
 
 const linksEl = document.getElementById('links');
-const flatOrder = []; // for 1-9 keyboard shortcuts
-let lastGroup = null;
-
 LINKS.forEach(l => {
-  if (l.group !== lastGroup){
-    const title = document.createElement('div');
-    title.className = 'group-title';
-    title.textContent = l.group;
-    linksEl.appendChild(title);
-    lastGroup = l.group;
-  }
-
   const a = document.createElement('a');
   a.className = 'link-item';
   a.href = l.url;
   a.style.setProperty('--accent', l.color);
-
-  const num = flatOrder.length < 9 ? flatOrder.length + 1 : null;
-  a.innerHTML = `<span class="kbd">${num ?? ''}</span><i class="${l.icon}"></i><span>${l.name}</span>`;
-  flatOrder.push(l.url);
-
+  a.innerHTML = `<i class="${l.icon}"></i><span>${l.name}</span>`;
   linksEl.appendChild(a);
 });
+
+/* ---------- quick note (saved locally via chrome.storage) ---------- */
+const noteInput = document.getElementById('note-input');
+let noteSaveTimer = null;
+
+if (chrome?.storage?.local){
+  chrome.storage.local.get(['quickNote'], (result) => {
+    noteInput.value = result.quickNote || '';
+  });
+  noteInput.addEventListener('input', () => {
+    clearTimeout(noteSaveTimer);
+    noteSaveTimer = setTimeout(() => {
+      chrome.storage.local.set({quickNote: noteInput.value});
+    }, 400); // debounce so we're not writing on every keystroke
+  });
+}
 
 /* ---------- search via DuckDuckGo ---------- */
 const searchInput = document.getElementById('search-input');
@@ -179,12 +202,12 @@ searchInput.addEventListener('keydown', (e) => {
   }
 });
 
-/* ---------- 1-9 keys open the first 9 links ---------- */
+/* ---------- 1-9 keys open the first 9 links (no on-screen hints, just muscle memory) ---------- */
 document.addEventListener('keydown', (e) => {
-  if (document.activeElement === searchInput) return; // don't hijack typing in search
+  if (document.activeElement === searchInput || document.activeElement === noteInput) return; // don't hijack typing
   const n = parseInt(e.key, 10);
-  if (n >= 1 && n <= 9 && flatOrder[n - 1]) {
-    window.location.href = flatOrder[n - 1];
+  if (n >= 1 && n <= 9 && LINKS[n - 1]) {
+    window.location.href = LINKS[n - 1].url;
   }
 });
 
